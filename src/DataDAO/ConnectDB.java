@@ -39,7 +39,7 @@ public class ConnectDB {
 	public static void Config() {
         serverName = "PHUCANH";
         port = "1433";
-        databaseName = "AppStore";
+        databaseName = "dbappstore";
         userName = "sa";
         password = "123456";
 

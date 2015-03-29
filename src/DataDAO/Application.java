@@ -7,6 +7,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 public class Application {
+	private String ID;
 	private String AppID;
 	private String Name;
 	private String CategoryID;
@@ -16,6 +17,15 @@ public class Application {
 	private Date UpdatedDate;
 	private String LinkDetail;
 	private String LinkApk;
+	private String Author;
+
+	public String getID() {
+		return ID;
+	}
+
+	public void setID(String iD) {
+		ID = iD;
+	}
 
 	public String getAppID() {
 		return AppID;
@@ -153,11 +163,23 @@ public class Application {
 					setUpdatedDate(updateTime);
 					System.out.println("Updated: " + updateTime);
 					break;
-
+				case "Author":
+					setAuthor(detailApp.text().substring(6));
+					System.out.println("Author: "
+							+ getAuthor());
+					break;
 				}
 			}
 		} catch (Exception ex) {
 			System.out.println(ex.getMessage());
 		}
+	}
+
+	public String getAuthor() {
+		return Author;
+	}
+
+	public void setAuthor(String author) {
+		Author = author;
 	}
 }

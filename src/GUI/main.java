@@ -1,6 +1,10 @@
 package GUI;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.*;
 
 import org.jsoup.Jsoup;
@@ -10,13 +14,18 @@ import org.jsoup.select.Elements;
 
 import DataDAO.Application;
 import DataDAO.Category;
+import DataDAO.ConnectDB;
+import DataDAO.ConnectMySql;
+import DataDAO.DataDAOMySql;
 import DataDAO.DataDao;
 
 public class main {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		getAllGameCategory();
+//		getCategory();
+//		getAllGameCategory();
+		getAppImage();
 	}
 
 	public static void getCategory() {
@@ -40,6 +49,7 @@ public class main {
 							cateElement.setLink("http://www.mobogenie.com"
 									+ cate.attr("href"));
 							DataDao.AddNewCategory(cateElement);
+//							DataDAOMySql.AddNewCategory(cateElement);
 						}
 					}
 
@@ -112,7 +122,9 @@ public class main {
 		Document doc;
 		Document detail;
 		try {
+		
 			doc = Jsoup.connect(url).timeout(10000).get();
+			
 			Elements links = doc.select("a");
 			for (Element link : links) {
 				Application app = new Application();
@@ -153,6 +165,7 @@ public class main {
 							System.out.println("Link Apk: "
 									+ file.attr("genie-url"));
 						}
+//						DataDAOMySql.AddNewApp(app);
 						DataDao.AddNewApp(app);
 					} catch (Exception ex) {
 						System.out.println(ex.getMessage());
@@ -170,4 +183,53 @@ public class main {
 		}
 	}
 
+	public static void getAppImage(){
+		Connection conn = null;
+		Statement st = null;
+	    ResultSet rs = null;
+		
+//		ArrayList<Application> idArr = DataDAOMySql.getAllApp();
+		Document detail;
+		
+		conn = ConnectDB.Connect();
+		String sql = "Select * From Application";
+
+		try {
+			st = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
+					ResultSet.CONCUR_READ_ONLY);
+			rs = st.executeQuery(sql);
+			boolean isIcon = true;
+			while (rs.next()) {
+				try {
+					isIcon = true;
+					detail = Jsoup.connect(rs.getString(11)).timeout(10000).get();
+					Elements icons = detail.getElementsByTag("img");
+					
+					for(Element icon : icons)
+					{
+						if(icon.attr("alt").equals(rs.getString(3)))
+						{
+							if(isIcon)
+							{
+								System.out.println("Icon:" + icon.attr("src"));
+								DataDao.AddIcon(rs.getString(1), icon.attr("src"), "0");
+								isIcon = false;
+							}
+							else
+							{
+								System.out.println("Image:" + icon.attr("src"));
+								DataDao.AddIcon(rs.getString(1), icon.attr("src"), "1");
+							}
+						}
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	}
 }

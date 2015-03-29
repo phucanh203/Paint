@@ -35,6 +35,7 @@ public class DataDao {
 		return cates;
 	}
 
+	
 	public static void AddNewCategory(Category cate) {
 		conn = ConnectDB.Connect();
 		String sql = "INSERT INTO Category(CategoryName,Link) values(?,?)";
@@ -58,7 +59,7 @@ public class DataDao {
 	public static void AddNewApp(Application app) {
 		if (app.checkNullData()) {
 			conn = ConnectDB.Connect();
-			String sql = "Insert Into Application(Name,CategoryID, Description, Version,AppID,Size,LinkDetail,LinkApk,UpdatedDate) values(?,?,?,?,?,?,?,?,?)";
+			String sql = "Insert Into Application(AppName,CategoryID, Description, Version,AppID,Size,LinkDetail,LinkApk,UpdatedDate,Author) values(?,?,?,?,?,?,?,?,?,?)";
 			PreparedStatement ps;
 			try {
 				ps = conn.prepareStatement(sql);
@@ -73,6 +74,7 @@ public class DataDao {
 				java.sql.Timestamp timeStamp = new java.sql.Timestamp(app
 						.getUpdatedDate().getTime());
 				ps.setTimestamp(9, timeStamp);
+				ps.setString(10, app.getAuthor());
 				if (ps.executeUpdate() == 1) {
 					System.out.println("Success!");
 				} else {
@@ -83,6 +85,33 @@ public class DataDao {
 				e.printStackTrace();
 			}
 
+		}
+	}
+
+	public static void AddIcon(String appID,String imgUrl,String type) {
+		conn = ConnectDB.Connect();
+		
+		String sql = "INSERT INTO AppImage(AppID,URL,Type) values(?,?,?)";
+		PreparedStatement ps;
+		try {
+			ps = conn.prepareStatement(sql);
+			ps.setString(1, appID);
+			ps.setString(2, imgUrl);
+			ps.setString(3, type);
+			if (ps.executeUpdate() == 1) {
+				System.out.println("Success!");
+			} else {
+				System.out.println("Fail!");
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			conn.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 }
